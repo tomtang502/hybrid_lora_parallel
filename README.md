@@ -4,11 +4,13 @@
 
 Authors: Tom Tang, Tony Tang
 
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.7.1-EE4C2C.svg?style=for-the-badge&logo=pytorch)](https://pytorch.org/get-started/locally/) [![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org) [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/) [![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/) [![NVIDIA](https://img.shields.io/badge/NVIDIA-GPU-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://www.nvidia.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.7.1-EE4C2C.svg?style=for-the-badge&logo=pytorch)](https://pytorch.org/get-started/locally/) [![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org) [![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/) [![NVIDIA](https://img.shields.io/badge/NVIDIA-GPU-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://www.nvidia.com/)
 
 <!-- [![Transformers](https://img.shields.io/badge/Transformers-🤗-yellow?style=for-the-badge)](https://huggingface.co/docs/transformers) -->
 
 <!-- [![License](https://img.shields.io/github/license/TRI-ML/prismatic-vlms?style=for-the-badge)](LICENSE) -->
+
+<!-- [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/) -->
 
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
@@ -20,7 +22,7 @@ Authors: Tom Tang, Tony Tang
 
 ## Training Pipeline Roadmap
 
-![#0069e0](https://singlecolorimage.com/get/0069e0/12x12) Standard PyTorch Pipeline &nbsp;&nbsp;
+![#0069e0](https://singlecolorimage.com/get/0069e0/12x12) Classic PyTorch Pipeline &nbsp;&nbsp;
 ![#ed5103](https://singlecolorimage.com/get/ed5103/12x12) Targeted Feature &nbsp;&nbsp;
 ![#999999](https://singlecolorimage.com/get/999999/12x12) Advanced Feature
 
@@ -28,7 +30,7 @@ Authors: Tom Tang, Tony Tang
   <tr>
     <td align="left">
       <img src="https://singlecolorimage.com/get/0069e0/12x12" width="12" height="12" />
-      &nbsp;Distributed Data Parallel
+      &nbsp;<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">Distributed Data Parallel</a>
     </td>
     <td>─┐</td>
   </tr>
@@ -36,7 +38,7 @@ Authors: Tom Tang, Tony Tang
   <tr>
     <td align="left">
       <img src="https://singlecolorimage.com/get/0069e0/12x12" width="12" height="12" />
-      &nbsp;ZeRO-3 Sharding
+      &nbsp; <a href="https://docs.pytorch.org/docs/stable/fsdp.html">ZeRO-3 Sharding</a>
     </td>
     <td>──►</td>
     <td>
