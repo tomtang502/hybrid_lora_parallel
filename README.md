@@ -14,21 +14,15 @@ Authors: Tom Tang, Tony Tang
 
 ## Updates
 
-- 25/11/17: Finish Proposal
+- 25/11/17: Proposal Uploaded
 - 25/11/16: Initialize the repo
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
 ## Training Pipeline Roadmap
 
-<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
-  <rect width="12" height="12" fill="#0069e0ff" rx="2" ry="2" />
-</svg> Standard PyTorch Pipeline &nbsp;&nbsp;
-<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
-  <rect width="12" height="12" fill="#ed5103ff" rx="2" ry="2" />
-</svg> Targeted Feature &nbsp;&nbsp;
-<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
-  <rect width="12" height="12" fill="#999999ff" rx="2" ry="2" />
-</svg> Advanced Feature
+![#0069e0](https://singlecolorimage.com/get/0069e0/12x12) Standard PyTorch Pipeline &nbsp;&nbsp;
+![#ed5103](https://singlecolorimage.com/get/ed5103/12x12) Targeted Feature &nbsp;&nbsp;
+![#999999](https://singlecolorimage.com/get/999999/12x12) Advanced Feature
 
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -38,7 +32,7 @@ Authors: Tom Tang, Tony Tang
   <tr>
     <td align="left"><a href="https://docs.pytorch.org/docs/stable/fsdp.html" style="color:#0069e0ff;">ZeRO-3 Sharding</a></td>
     <td style="color:#0069e0ff;">──►</td>
-    <td style="color: #ed5103ff;">Distributed Tensor Sharding with Data Paralllel (FSDP)</td>
+    <td style="color: #ed5103ff;">Distributed Tensor Sharding with Data Paralllel (FSDP2)</td>
     <td style="color: #ed5103ff;">──►</td>
     <td style="color: #ed5103ff;"> Pipeline Parallelism (Uniform Parameters Split)</a>
     </td>
