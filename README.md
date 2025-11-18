@@ -26,33 +26,54 @@ Authors: Tom Tang, Tony Tang
 
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td align="left"><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html" style="color:#0069e0ff;">Distributed Data Parallel</a></td>
-    <td style="color:#0069e0ff;">─┐</td>
-  </tr>
-  <tr>
-    <td align="left"><a href="https://docs.pytorch.org/docs/stable/fsdp.html" style="color:#0069e0ff;">ZeRO-3 Sharding</a></td>
-    <td style="color:#0069e0ff;">──►</td>
-    <td style="color: #ed5103ff;">Distributed Tensor Sharding with Data Paralllel (FSDP2)</td>
-    <td style="color: #ed5103ff;">──►</td>
-    <td style="color: #ed5103ff;"> Pipeline Parallelism (Uniform Parameters Split)</a>
+    <td align="left">
+      <img src="https://singlecolorimage.com/get/0069e0/12x12" width="12" height="12" />
+      &nbsp;Distributed Data Parallel
     </td>
-    <td style="color: #ed5103ff;">─┐</td>
+    <td>─┐</td>
   </tr>
+  
   <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td align="right" style="color: #ed5103ff;">⬇︎</td>
-  </tr>
-  <tr>
-    <td style="color: #999999ff; opacity: 0.8;">LoRA CUDA Kernel</td>
-    <td style="color: #999999ff; opacity: 0.8;">◄──</td>
-    <td style="color: #999999ff; opacity: 0.8;">Tensor Parallelism</td>
-    <td style="color: #ed5103ff;">◄──</td>
-    <td style="color: #ed5103ff;">Pipeline Parallelism (Dynamic Parameters Split)</td>
-    <td align="right" style="color: #ed5103ff;">─┘</td>
+    <td align="left">
+      <img src="https://singlecolorimage.com/get/0069e0/12x12" width="12" height="12" />
+      &nbsp;ZeRO-3 Sharding
+    </td>
+    <td>──►</td>
+    <td>
+      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
+      &nbsp;Distributed Tensor Sharding with Data Parallel (FSDP2)
+    </td>
+    <td>──►</td>
+    <td>
+      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
+      &nbsp;Pipeline Parallelism (Uniform Parameters Split)
+    </td>
+    <td>─┐</td>
   </tr>
 
+  <tr>
+    <td></td><td></td><td></td><td></td><td></td>
+    <td align="right">
+      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
+      &nbsp;⬇︎
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <img src="https://singlecolorimage.com/get/999999/12x12" width="12" height="12" />
+      &nbsp;LoRA CUDA Kernel
+    </td>
+    <td>◄──</td>
+    <td>
+      <img src="https://singlecolorimage.com/get/999999/12x12" width="12" height="12" />
+      &nbsp;Tensor Parallelism
+    </td>
+    <td>◄──</td>
+    <td>
+      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
+      &nbsp;Pipeline Parallelism (Dynamic Parameters Split)
+    </td>
+    <td align="right">─┘</td>
+  </tr>
 </table>
