@@ -20,9 +20,15 @@ Authors: Tom Tang, Tony Tang
 
 ## Training Pipeline Roadmap
 
-<span style="display:inline-block;width:12px;height:12px;background:#0069e0ff;border-radius:3px;vertical-align:middle;"></span> Standard Pytorch Pipeline &nbsp;&nbsp;
-<span style="display:inline-block;width:12px;height:12px;background:#ed5103ff;border-radius:3px;vertical-align:middle;"></span> Targeted Feature &nbsp;&nbsp;
-<span style="display:inline-block;width:12px;height:12px;background:#999999ff;border-radius:3px;vertical-align:middle;"></span> <span style="color:#999999;">Advanced Feature</span>
+<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+  <rect width="12" height="12" fill="#0069e0ff" rx="2" ry="2" />
+</svg> Standard PyTorch Pipeline &nbsp;&nbsp;
+<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+  <rect width="12" height="12" fill="#ed5103ff" rx="2" ry="2" />
+</svg> Targeted Feature &nbsp;&nbsp;
+<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+  <rect width="12" height="12" fill="#999999ff" rx="2" ry="2" />
+</svg> Advanced Feature
 
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
