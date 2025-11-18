@@ -53,10 +53,7 @@ Authors: Tom Tang, Tony Tang
 
   <tr>
     <td></td><td></td><td></td><td></td><td></td>
-    <td align="right">
-      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
-      &nbsp;⬇︎
-    </td>
+    <td align="right">⬇︎</td>
   </tr>
 
   <tr>
