@@ -4,6 +4,8 @@
 
 Authors: Tom Tang, Tony Tang
 
+Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
+
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.7.1-EE4C2C.svg?style=for-the-badge&logo=pytorch)](https://pytorch.org/get-started/locally/) [![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org) [![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/) [![NVIDIA](https://img.shields.io/badge/NVIDIA-GPU-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://www.nvidia.com/)
 
 <!-- [![Transformers](https://img.shields.io/badge/Transformers-🤗-yellow?style=for-the-badge)](https://huggingface.co/docs/transformers) -->
