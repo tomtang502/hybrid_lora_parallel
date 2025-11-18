@@ -20,7 +20,9 @@ Authors: Tom Tang, Tony Tang
 
 ## Training Pipeline Roadmap
 
-<span style="display:inline-block; width:12px; height:12px; background:#0069e0ff; border-radius:3px; vertical-align:middle;"></span> Standard Pytorch Pipeline <span style="display:inline-block; width:12px; height:12px; background:#ed5103ff; border-radius:3px; vertical-align:middle;"></span> Targeted feature <span style="display:inline-block; width:12px; height:12px; background:#999999ff; border-radius:3px; vertical-align:middle; opacity: 0.5;"></span> Advanced Feature
+<span style="display:inline-block;width:12px;height:12px;background:#0069e0ff;border-radius:3px;vertical-align:middle;"></span> Standard Pytorch Pipeline &nbsp;&nbsp;
+<span style="display:inline-block;width:12px;height:12px;background:#ed5103ff;border-radius:3px;vertical-align:middle;"></span> Targeted Feature &nbsp;&nbsp;
+<span style="display:inline-block;width:12px;height:12px;background:#999999ff;border-radius:3px;vertical-align:middle;"></span> <span style="color:#999999;">Advanced Feature</span>
 
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
