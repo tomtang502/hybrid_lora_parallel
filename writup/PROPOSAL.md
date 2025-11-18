@@ -142,6 +142,3 @@ Week 2 (12/7-12/13):
 [4] Gu, A., & Dao, T. (2024, May). Mamba: Linear-time sequence modeling with selective state spaces. In First conference on language modeling.
 
 [5] Yang, S., Kautz, J., & Hatamizadeh, A. (2024). Gated delta networks: Improving mamba2 with delta rule. arXiv preprint arXiv:2412.06464.
-
-
-This sentence uses `$` delimiters to show math inline: $\sqrt{3x-1}+(1+x)^2$
