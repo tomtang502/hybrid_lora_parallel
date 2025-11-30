@@ -1,3 +1,11 @@
 /svg-inkscape
 .DS_Store
 /writeup/PROPOSAL.pdf
+/git_command.sh
+/dlora.egg-info
+/ckpts
+/logs
+/wandb
+__pycache__/
+/result/
+/data/bold/
