@@ -41,11 +41,13 @@ from torch.nn.parallel import DistributedDataParallel
 from torch.amp import GradScaler
 from torch.utils.data import DataLoader
 from transformers import get_constant_schedule_with_warmup
+from contextlib import nullcontext
 
 from src.model.optimizer import build_optimizer
 from src.config.train_config import HLParTrainConfig
 from src.utils.dist import is_master, dist_barrier, get_dist_rank, sync_tensor
 from src.profile.vram import measure_vram
+from src.profile.perf_monitor import PerformanceMonitor
 from src.utils.custom_type import LogFunc
 from src.utils.misc import get_amp_dtype_by_bool
 from src.config.constants import (
@@ -54,9 +56,9 @@ from src.config.constants import (
 from src.utils.text_handle import append_to_txt_file
 
 
-__all__ = ["FSDP2Trainer"]
+__all__ = ["BaseTrainer"]
 
-class FSDP2Trainer:
+class BaseTrainer:
     def __init__(
         self,
         train_loader: DataLoader,
@@ -87,16 +89,11 @@ class FSDP2Trainer:
         # self.device_mesh = device_mesh
         # TODO
 
-
+        self.perf_monitor = PerformanceMonitor()
         self.train_iter = peekable(self.train_loader)
         assert isinstance(self.model, (nn.Module, DistributedDataParallel))
 
-        if isinstance(self.model, DistributedDataParallel):
-            self.dp_mode = "ddp"
-        elif isinstance(self.model, nn.Module):
-            self.dp_mode = "fsdp_v2"
-        else:
-            raise ValueError(f"Invalid model type: {type(self.model)}")
+        self.parallel_stretagy = cfg.parallel_stretagy
 
         # progress tracker
         self.global_step = 0
@@ -253,13 +250,18 @@ class FSDP2Trainer:
             loss_ratio = input_ids.size(0) / batch_size
 
             experimental_args["is_gradient_accumulation_start"] = (i == 0)
-            if i != chunks - 1:
-                self.model.set_requires_gradient_sync(False)
-                micro_dict = self._micro_step(
-                    input_ids, labels, loss_ratio, position_ids, attention_mask,
-                    experimental_args=experimental_args)
-            else:  
-                self.model.set_requires_gradient_sync(True)
+
+            is_last_microstep = (i == chunks - 1)
+            sync_context = nullcontext()
+            if self.parallel_stretagy == "ddp":
+                # In DDP, use no_sync() for all steps EXCEPT the last one
+                if not is_last_microstep:
+                    sync_context = self.model.no_sync()
+            elif self.parallel_stretagy == 'fsdp_dtensor':
+                self.model.set_requires_gradient_sync(is_last_microstep)
+                
+
+            with sync_context:
                 micro_dict = self._micro_step(
                     input_ids, labels, loss_ratio, position_ids, attention_mask,
                     experimental_args=experimental_args)
@@ -286,21 +288,22 @@ class FSDP2Trainer:
         return logging_metrics
 
     def _optimizer_step(self, grad_clip: float) -> dict[str, Any]:
-        if grad_clip is not None:
-            grad_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), grad_clip)
-            grad_norm = grad_norm.full_tensor()
-            grad_norm = grad_norm.item()
-        else:
-            grad_norm = 0.0
             
         if grad_clip is not None:
             trainable_params = []
             for group in self.optimizer.param_groups:
                 trainable_params.extend(group["params"])
 
-            # DTensor handles the global norm reduction automatically here
-            grad_norm = torch.nn.utils.clip_grad_norm_(trainable_params, grad_clip)
+            if self.parallel_stretagy == 'fsdp':
+                # FSDP specific method: handles global norm reduction internally
+                grad_norm = self.model.clip_grad_norm_(grad_clip)
+            else:
+                # DTensor handles the global norm reduction automatically here
+                grad_norm = torch.nn.utils.clip_grad_norm_(trainable_params, grad_clip)
             
+            if isinstance(grad_norm, DTensor):
+                grad_norm = grad_norm.full_tensor()
+
             if isinstance(grad_norm, torch.Tensor):
                 grad_norm = grad_norm.item()
         else:
@@ -326,9 +329,14 @@ class FSDP2Trainer:
                 with measure_vram("memory", device=get_dist_rank()) as vram_stats:
                     logging_metrics = self.train_step(grad_clip=self.cfg.opt_cfg.max_grad_norm)
                 logging_metrics.update(vram_stats.metrics)
+
+                if step > self.cfg.warm_up_steps:
+                    self.perf_monitor.record_step(latency=logging_metrics['train/step_time'], throughput=logging_metrics['train/tokens_per_sec'], vram=logging_metrics[f"memory/peak_allocated_mb"])
                 if self.global_step % self.cfg.logging_steps == 0:
                     if self.global_step > 1 or self.cfg.logging_first_step:
                         if is_master():
                             self.wandb_run.log(logging_metrics, step=step, commit=True)
                         self.main_log_fn(f"[Metrics]\n{str(logging_metrics)}")
                 t.update()
+        append_to_txt_file(self.cfg.res_path, self.perf_monitor.generate_report_string())
+        return self.perf_monitor.get_report()

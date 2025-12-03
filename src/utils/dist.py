@@ -23,7 +23,7 @@ import torch
 import torch.distributed
 
 
-def _get_dist_local_rank() -> int:
+def get_dist_local_rank() -> int:
     return int(os.environ["LOCAL_RANK"])
 
 
@@ -42,7 +42,7 @@ def dist_init(gpu: Optional[str] = None, cudnn_benchmark: bool = False, timeout:
     torch.distributed.init_process_group(backend="nccl", timeout=timedelta(seconds=timeout))
     assert torch.distributed.is_initialized()
 
-    torch.cuda.set_device(_get_dist_local_rank())
+    torch.cuda.set_device(get_dist_local_rank())
 
 
 def get_dist_rank() -> int:

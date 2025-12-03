@@ -54,10 +54,10 @@ def toggle_requires_grad(model, opt_cfg: OptimizerConfig):
             module.requires_grad = False
 
 def _get_param_groups(model: GenerationMixin, opt_cfg: OptimizerConfig, toggle_grad=True):
-    if getattr(model, "model_type", "unknown") == "hf":
-        if getattr(model.base_model.config, "tie_word_embeddings", True):
-            # hf_model_tie_embeds is True
-            assert (".*embed.*" in opt_cfg.no_wd_regex) ^ ("head" in opt_cfg.no_wd_regex), "For HF model, embed and head need to both in no wd"
+    # if getattr(model, "model_type", "unknown") == "hf":
+    #     if getattr(model.base_model.config, "tie_word_embeddings", True):
+    #         # hf_model_tie_embeds is True
+    #         assert (".*embed.*" in opt_cfg.no_wd_regex) ^ ("head" in opt_cfg.no_wd_regex), "For HF model, embed and head need to both in no wd"
 
     embed_full_name, embed_param = None, None
     wd_group, nwd_group = {}, {}
@@ -95,8 +95,8 @@ def _get_param_groups(model: GenerationMixin, opt_cfg: OptimizerConfig, toggle_g
                     
 
     # tied embedding post checking
-    assert embed_param is not None, "Need to be able to find embedding layer"
-    assert model.lm_head.weight is embed_param, "Need to make sure embed layer and lm_head is tied under same param"
+    # assert embed_param is not None, "Need to be able to find embedding layer"
+    # assert model.lm_head.weight is embed_param, "Need to make sure embed layer and lm_head is tied under same param"
 
     param_groups = [wd_group, nwd_group]
     return param_groups

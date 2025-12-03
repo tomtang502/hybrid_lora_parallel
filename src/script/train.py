@@ -38,19 +38,23 @@ from src.utils.dist import (
     is_master, 
     get_world_size_safe,
     get_dist_rank,
+    get_dist_local_rank,
 )
 from src.utils.custom_type import LogFunc
 from src.utils.text_handle import create_txt_file, append_to_txt_file
 from src.data.data_builder import get_dataloader
 from src.profile.vram import per_device_report
-from src.trainer import FSDP2Trainer
+from src.trainer import BaseTrainer
 
 from src.model import (
     build_dist_model,
     wrap_model_with_linear_lora,
     merge_lora_and_unwrap,
     get_base_model,
-    toggle_requires_grad
+    toggle_requires_grad,
+    prepare_model_for_ddp,
+    prepare_model_for_fsdp,
+    get_block_class_from_model
     
 )
 from src.utils.log_utils import setup_logging, silence_logger
@@ -108,9 +112,11 @@ def main(cfg: HLParTrainConfig):
     
         main_LOG(f"{BLUE}Activating base model norm layers{RESET}")
         model = wrap_model_with_linear_lora(model=model, lora_cfg=cfg.lora_cfg)
-    
+    if cfg.bf16:
+        model.to(torch.bfloat16)
     model.cuda()
     
+    fsdp_block_class = get_block_class_from_model(model)
     toggle_requires_grad(model=model, opt_cfg=cfg.opt_cfg)
     cfg.opt_cfg.toggle_grad = False
 
@@ -123,7 +129,16 @@ def main(cfg: HLParTrainConfig):
     append_to_txt_file(file_path=cfg.res_path, content=vram_report)
     dist_barrier()
     
-    model = build_dist_model(model=model, main_LOG=main_LOG, dist_cfg=cfg.par_config)
+    if cfg.parallel_stretagy == 'fsdp_dtensor':
+        model = build_dist_model(model=model, main_LOG=main_LOG, dist_cfg=cfg.par_config)
+    elif cfg.parallel_stretagy == 'ddp':
+        model = prepare_model_for_ddp(model=model, local_rank=get_dist_local_rank(), 
+                                      enable_grad_ckpt=cfg.gradient_checkpointing, gradient_checkpointing_kwargs=cfg.gradient_checkpointing_kwargs, 
+                                      find_unused_parameters=cfg.ddp_find_unused_parameters)
+    elif cfg.parallel_stretagy == 'fsdp':
+        model = prepare_model_for_fsdp(model=model, local_rank=get_dist_local_rank(), block_class=fsdp_block_class, 
+                                       enable_grad_ckpt=cfg.gradient_checkpointing, gradient_checkpointing_kwargs=cfg.gradient_checkpointing_kwargs,
+                                       mixed_precision=cfg.bf16, use_cpu_offload=cfg.fsdp_cpu_offload)
     
     
     vram_report = per_device_report("Model footprint AFTER FSDP build")
@@ -131,7 +146,7 @@ def main(cfg: HLParTrainConfig):
     dist_barrier()
     
     main_LOG(f"{str(cfg.wandb_run)}")
-    trainer = FSDP2Trainer(model=model, cfg=cfg, train_loader=train_loader, main_LOG=main_LOG, 
+    trainer = BaseTrainer(model=model, cfg=cfg, train_loader=train_loader, main_LOG=main_LOG, 
                            wandb_run=cfg.wandb_run)
     dist_barrier()
     

@@ -1,5 +1,4 @@
-import os, yaml, json, uuid, wandb, hashlib
-from time import time
+import os, yaml, json, time, wandb, hashlib
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Union, Tuple, Literal, List
@@ -16,10 +15,10 @@ from src.utils.dist import get_dist_rank
 @dataclass
 class HLParTrainConfig:
     """Training Configuration for Hybrid Parallelism"""
-    model_name_or_path: str | Path = MODEL_PATH
-    tokenizer_name: str | Path = MODEL_PATH
+    model_name_or_path: str = MODEL_PATH
+    tokenizer_name: str = MODEL_PATH
     VERSION_STRING: str = "1203"
-    trust_remote_code = True
+    trust_remote_code: bool = True
     
     # Path to save logs
     log_root_dir: str = "logs"
@@ -27,18 +26,19 @@ class HLParTrainConfig:
     
 
     seed: int = 42
-    
-    tokenizer_pad_side = "right"
+    tokenizer_pad_side: str = "right"
     
 
     # Logging
-    wandb_run = None
     trackers: Tuple[str, ...] = ("jsonl", "wandb")
     logging_file_name: str = "train.log"
     result_file_name: str = "perf.txt"
     logging_first_step: bool = True
     logging_steps: int = 1
     reset_log_dir: bool = True
+
+    # profiling
+    warm_up_steps: int = 10
 
     # Training Size
     use_lora = True
@@ -55,7 +55,7 @@ class HLParTrainConfig:
     bf16: bool = True
     low_cpu_mem_usage: bool = False
     mha_only: bool = True
-    attn_implementation: str = "flash_attention_2"
+    attn_implementation: str = "sdpa"
     
     # dataset
     dataloader_num_workers: int = 4
@@ -65,8 +65,12 @@ class HLParTrainConfig:
 
     # DDP
     ddp_find_unused_parameters = False
+
+    # FSDP
+    fsdp_cpu_offload = False
     
     def __post_init__(self):
+        assert self.warm_up_steps < self.num_steps
         self.single_iter_batch_size = self.per_device_batch_size * self.num_devices
         self.total_size = self.global_batch_size * self.num_steps
         # adjust grad_accumulation for global batch size
@@ -105,8 +109,14 @@ class HLParTrainConfig:
 
         if self.parallel_stretagy == 'fsdp_dtensor':
             self.par_config = FSDP2Config(fsdp_activation_checkpointing=self.gradient_checkpointing, ac_kwargs=self.gradient_checkpointing_kwargs)
+        elif self.parallel_stretagy == 'ddp':
+            self.par_config = None
+        elif self.parallel_stretagy == 'fsdp':
+            self.par_config = None
         else:
             raise NotImplementedError
+        self.wandb_run = None
+        self.VERSION_STRING = str(int(time.time()))
     
     
     def init_wandb(self):

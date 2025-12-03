@@ -47,12 +47,11 @@ if [[ -z $CUDA_VISIBLE_DEVICES ]]; then
 else
     gpu_count=$(echo $CUDA_VISIBLE_DEVICES | tr ',' '\n' | wc -l)
 fi
-# gpu_count=1
 echo "Available GPU count: $gpu_count"
 
 if command -v srun &> /dev/null; then
     # on nv cluster
-    BATCH_SIZE=1
+    BATCH_SIZE=2
     NUM_STEPS=100
     CHUNK_SIZE=4096
     GLOBAL_BATCH_SIZE=64
@@ -64,7 +63,7 @@ else
     GLOBAL_BATCH_SIZE=16
 fi
 
-PAR_STRETAGY="fsdp_dtensor"
+PAR_STRETAGY="ddp"
 export WANDB_RUNTYPE=$PAR_STRETAGY
 
 cmd="torchrun --nnodes $SLURM_NNODES --nproc_per_node=$gpu_count --rdzv_id $RANDOM --rdzv_backend c10d --rdzv_endpoint $head_node_ip:29500 \
