@@ -1,9 +1,9 @@
 torch<=2.8.0
 transformers<=4.53.0
-flash-attn
 draccus<=0.11.5
 accelerate
 datasets>=4.0.0
-peft@git+https://github.com/11785T23/peft.git
-lm-eval@git+https://github.com/EleutherAI/lm-evaluation-harness.git@e916aa4176aca80b99f39cfc4f017c87002d9995
+peft
 wandb
+nvidia-ml-py
+flash-linear-attention@git+https://github.com/jet-ai-projects/flash-linear-attention.git@jetai

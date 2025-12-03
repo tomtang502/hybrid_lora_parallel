@@ -1,152 +1,128 @@
-"""
-This module defines a dataclass that bundles together the various
-hyperparameters and settings needed for finetuning a causal language model
-using parameterefficient LoRA adapters.
-"""
-import os, wandb, json, uuid
-from dataclasses import dataclass, field, asdict
-from typing import Optional
+import os, yaml, json, uuid, wandb, hashlib
+from time import time
+from dataclasses import dataclass, asdict
 from pathlib import Path
-from transformers import TrainingArguments
-from .lora_config import BaseLoraConfig
-from .lora_param_heuristic import get_lora_params
+from typing import Union, Tuple, Literal, List
+from transformers import (
+    TrainingArguments,
 
+)
+from src.config.lora_config import CustomLoraConfig
+from src.config.optim_config import LoRAOptimizerConfig
+from src.config.constants import MODEL_PATH, DATA_PATH
+from src.config.parallel_config.fsdp_config import FSDP2Config
+from src.utils.dist import get_dist_rank
 
 @dataclass
-class TrainingConfig:
-    """Container for training hyperparameters and LoRA settings."""
+class HLParTrainConfig:
+    """Training Configuration for Hybrid Parallelism"""
+    model_name_or_path: str | Path = MODEL_PATH
+    tokenizer_name: str | Path = MODEL_PATH
+    VERSION_STRING: str = "1203"
+    trust_remote_code = True
+    
+    # Path to save logs
+    log_root_dir: str = "logs"
+    run_name: str | None = None
+    
 
-    # Name or path of the pretrained model to fine‑tune.  When training
-    # Qwen‑2.5 models, provide the appropriate identifier from the Hub.
-    model_name_or_path: str = "Qwen/Qwen2.5-1.5B"
-
-    # Maximum sequence length for tokenization.  Examples longer than this
-    # value will be truncated on the right.  Adjust based on GPU memory.
-    # max_seq_length: int = 4096
-
-    # Learning rate used by the AdamW optimizer.
-    learning_rate: float = 2e-5
-
-    # Total number of training epochs.
-    num_train_epochs: int = 1
-    lr_scheduler_type: str = "cosine"
-    warm_up_ratio: float = 0.05
-
-    per_device_batch_size: int = 2
-
-    gradient_accumulation_steps: int = 4
-
-    init_with_lora: bool = False
-
-    # Directory where checkpoints and the final model will be saved.
-    ckpt_dir_root: str = "./ckpts/baseline"
-
-    # Random seed for reproducibility.
     seed: int = 42
     
+    tokenizer_pad_side = "right"
+    
+
     # Logging
-    log_dir_root: str = "logs"
-    logging_steps=2
-    report_to="wandb"
+    wandb_run = None
+    trackers: Tuple[str, ...] = ("jsonl", "wandb")
+    logging_file_name: str = "train.log"
+    result_file_name: str = "perf.txt"
+    logging_first_step: bool = True
+    logging_steps: int = 1
+    reset_log_dir: bool = True
+
+    # Training Size
+    use_lora = True
+    per_device_batch_size: int = 2
+    global_batch_size: int = 32
+    gradient_accumulation_steps: int = 2
+    num_devices: int = 8
+    num_steps: int = 100
+
+    # VRAM
+    parallel_stretagy: Literal["ddp", "fsdp", "fsdp_dtensor"] = "fsdp_dtensor"
+    gradient_checkpointing: bool = True
+    gradient_checkpointing_kwargs: dict | None = None
+    bf16: bool = True
+    low_cpu_mem_usage: bool = False
+    mha_only: bool = True
+    attn_implementation: str = "flash_attention_2"
     
-    # Evaluation
-    evaluation_strategy="no"
-    
-    # checkpointing
-    save_steps=200
-    save_total_limit=3
-    
-    # fintuning dataset type
-    dataset_type: str = "math"
-    
-    # LoRA Config
-    lora_rank: int = 16
-    lora_alpha: int = 32
-    lora_dropout: float = 0.05
-    use_rslora: bool = True
-    lora_effective_scale: int = 2
+    # dataset
+    dataloader_num_workers: int = 4
+    remove_unused_columns: bool = False,            # keep exactly what collate returns
+    dataset_path: str = DATA_PATH
+    chunk_size: int = 2048
+
+    # DDP
+    ddp_find_unused_parameters = False
     
     def __post_init__(self):
-        if self.init_with_lora:
-            self.lora_alpha, self.lora_dropout = get_lora_params(lora_rank=self.lora_rank, use_rslora=self.use_rslora, 
-                                              scale=self.lora_effective_scale)
-            self.lora_config = BaseLoraConfig(rank=self.lora_rank, lora_alpha=self.lora_alpha, 
-                                              lora_dropout=self.lora_dropout, use_rslora=self.use_rslora)
-            if self.use_rslora:
-                self.run_name = f"baseline_lftr={self.lora_config.rank}_rs_{self.dataset_type}"
+        self.single_iter_batch_size = self.per_device_batch_size * self.num_devices
+        self.total_size = self.global_batch_size * self.num_steps
+        # adjust grad_accumulation for global batch size
+        assert self.global_batch_size % self.per_device_batch_size == 0, "Global batch size has to be a multiple of per_device_batch_size"
+        assert self.global_batch_size % self.single_iter_batch_size == 0, "Global batch size has to be a multiple of per_device_batch_size * num_devices!"
+        self.gradient_accumulation_steps = self.global_batch_size // self.single_iter_batch_size
+        
+        # additional configurations
+        self.lora_cfg = None
+        if self.use_lora:
+            self.lora_cfg: CustomLoraConfig = CustomLoraConfig(mha_only=self.mha_only)
+        self.opt_cfg = LoRAOptimizerConfig(mha_only=self.mha_only)
+
+        # set up the run_name for this run
+        module_opened = 'mha'
+        if not self.mha_only:
+            module_opened = module_opened+'+gdn'
+        module_opened = module_opened+'+embed'+'norms'
+        
+        if self.run_name is None:
+            if self.use_lora:
+                self.run_name = f"{self.parallel_stretagy}_{module_opened}_lora_clength{self.chunk_size}_{self.num_devices}_b{self.global_batch_size}_s{self.seed}"
             else:
-                self.run_name = f"baseline_lftr={self.lora_config.rank}_{self.dataset_type}"
+                self.run_name = f"{self.parallel_stretagy}_{module_opened}_clength{self.chunk_size}_{self.num_devices}_b{self.global_batch_size}_s{self.seed}"
+
+        self.log_dir = Path(f"{self.log_root_dir}/{self.run_name}")
+        
+        self.log_dir.mkdir(parents=True,
+                           exist_ok=True)
+        self.logging_file_name = f"train_r{get_dist_rank()}.log"
+        self.result_file_name = f"perf_r{get_dist_rank()}.txt"
+        self.log_path = self.log_dir / self.logging_file_name
+        self.res_path = self.log_dir / self.result_file_name
+        
+        self.gradient_checkpointing_kwargs = {"use_reentrant": False}
+
+        if self.parallel_stretagy == 'fsdp_dtensor':
+            self.par_config = FSDP2Config(fsdp_activation_checkpointing=self.gradient_checkpointing, ac_kwargs=self.gradient_checkpointing_kwargs)
         else:
-            self.lora_config = None
-            self.run_name = f"baseline_fft_{self.dataset_type}"
-        lr_str = str(self.learning_rate).replace('.', 'd')
-        wu_str = str(self.warm_up_ratio).replace('.', 'd')
-        self.run_name += f"_{lr_str}_{self.lr_scheduler_type}{wu_str}"
-        os.makedirs(self.log_dir_root, exist_ok=True)
-        os.makedirs(self.ckpt_dir_root, exist_ok=True)
-        
-        self.log_dir = f"{self.log_dir_root}/{self.run_name}"
-        os.makedirs(self.log_dir, exist_ok=True)
-        self.ckpt_dir = f"{self.ckpt_dir_root}/{self.run_name}"
-        os.makedirs(self.ckpt_dir, exist_ok=True)
-        self.warm_up_ratio = 0.05
-        
+            raise NotImplementedError
     
-    def get_trainer_args(self):
-        print("batch_size:", self.per_device_batch_size)
-        training_args = TrainingArguments(
-            run_name=self.run_name,
-            do_train=True,
-            do_eval=False,
-            do_predict=False,
-            per_device_train_batch_size=self.per_device_batch_size,
-            gradient_accumulation_steps=self.gradient_accumulation_steps,
-            num_train_epochs=self.num_train_epochs,
-            learning_rate=self.learning_rate,
-            
-            logging_dir=self.log_dir, 
-            logging_strategy="steps",
-            logging_steps=self.logging_steps,
-            report_to=self.report_to,
-            
-            lr_scheduler_type=self.lr_scheduler_type, 
-            warmup_ratio=self.warm_up_ratio,
-            
-
-            
-            output_dir=self.ckpt_dir,
-            save_steps=self.save_steps,
-            save_total_limit=self.save_total_limit,
-            eval_strategy=self.evaluation_strategy,
-            
-            dataloader_pin_memory=True,
-            dataloader_num_workers=16,
-            gradient_checkpointing=True,
-            gradient_checkpointing_kwargs={"use_reentrant": False},
-            bf16=True,                     # mixed precision autocast in bf16
-            # bf16_full_eval=True,           # eval/generation also in bf16
-            # optim="adamw_torch_fused",     # good fused optimizer on recent PyTorch
-            tf32=True,    
-        )
-        return training_args
-         
+    
     def init_wandb(self):
-        runid_file = Path(f"{self.log_dir}") / "wandb_runid.json"
-        if runid_file.exists():
-            run_id = json.loads(runid_file.read_text())["run_id"]
-        else:
-            run_id = str(uuid.uuid4())
-            runid_file.write_text(json.dumps({"run_id": run_id}))
-
+        # Save a stable run id in a small file so we reuse it across restarts
+        run_id = hashlib.sha1((self.run_name+self.VERSION_STRING).encode("utf-8")).hexdigest()
         os.environ["WANDB_RUN_ID"] = run_id
 
-        run = wandb.init(
+        self.wandb_run = wandb.init(
             entity=os.environ["WANDB_ENTITY"],
             project=os.environ["WANDB_PROJECT"],
-            dir=self.log_dir,
             name=self.run_name,
             id=run_id,
             resume=os.environ["WANDB_RESUME"],
-            config=asdict(self)
+            config=asdict(self),
+            job_type=os.environ["WANDB_RUNTYPE"]
         )
-        self.run = run
+        self.wandb_dir = self.wandb_run.dir
+    def get_lora_config(self, model):
+        return self.lora_cfg.get_lora_config(model=model, mha_only=self.mha_only)
