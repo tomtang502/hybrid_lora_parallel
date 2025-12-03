@@ -64,6 +64,7 @@ else
     GLOBAL_BATCH_SIZE=16
 fi
 
+PAR_STRETAGY="fsdp_dtensor"
 
 cmd_le="torchrun --nnodes $SLURM_NNODES --nproc_per_node=$gpu_count --rdzv_id $RANDOM --rdzv_backend c10d --rdzv_endpoint $head_node_ip:29500 \
 src/script/train.py \
@@ -72,7 +73,7 @@ src/script/train.py \
     --chunk_size $CHUNK_SIZE \
     --num_steps $NUM_STEPS \
     --global_batch_size $GLOBAL_BATCH_SIZE \
-    --parallel_stretagy "fsdp_dtensor" \
+    --parallel_stretagy $PAR_STRETAGY \
 "
 
 if command -v srun &> /dev/null; then
