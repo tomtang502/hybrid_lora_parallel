@@ -8,7 +8,7 @@ from transformers import (
 )
 from src.config.lora_config import CustomLoraConfig
 from src.config.optim_config import LoRAOptimizerConfig
-from src.config.constants import MODEL_PATH, DATA_PATH
+from src.config.constants import MODEL_PATH, DATA_PATH, DATA_DIR_PATH
 from src.config.parallel_config.fsdp_config import FSDP2Config
 from src.utils.dist import get_dist_rank
 
@@ -60,7 +60,7 @@ class HLParTrainConfig:
     # dataset
     dataloader_num_workers: int = 4
     remove_unused_columns: bool = False,            # keep exactly what collate returns
-    dataset_path: str = DATA_PATH
+    dataset_path: str = DATA_DIR_PATH
     chunk_size: int = 2048
 
     # DDP
