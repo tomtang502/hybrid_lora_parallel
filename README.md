@@ -17,8 +17,8 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
 ## Updates
-- 25/12/2: Experiment Submitted to PSC for Profiling DDP, FSDP, FSDP+DTensor Pipelines
-- 25/12/1: Reimplement FSDP + DDP baseline using raw pyTorch, for ease of prfiling and comparison
+- 25/12/4: Experiment Submitted to PSC for Profiling DDP, FSDP, FSDP+DTensor Pipelines
+- 25/12/3: Reimplement FSDP + DDP baseline using raw pyTorch, for ease of prfiling and comparison
 - 25/11/29: Profiling Pipeline + FSDP+DTensor Profiled
 - 25/11/26: Implemented FSDP+DTensor using raw pyTorch
 - 25/11/23: Implemented FSDP using transformers
