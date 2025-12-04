@@ -36,18 +36,19 @@ def prepare_model_for_fsdp(
                      CRITICAL for memory savings.
         enable_grad_ckpt: Whether to enable gradient checkpointing.
     """
-    if hasattr(model, "enable_input_require_grads"):
-        model.enable_input_require_grads()
-    else:
-        # Manual fallback if method doesn't exist
-        def make_inputs_require_grad(module, input, output):
-            output.requires_grad_(True)
-        model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
-        torch.cuda.set_device(local_rank)
+    # if hasattr(model, "enable_input_require_grads"):
+    #     model.enable_input_require_grads()
+    # else:
+    #     # Manual fallback if method doesn't exist
+    #     def make_inputs_require_grad(module, input, output):
+    #         output.requires_grad_(True)
+    #     model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
+    #     torch.cuda.set_device(local_rank)
 
-    model.gradient_checkpointing_enable(
-        gradient_checkpointing_kwargs=gradient_checkpointing_kwargs
-    )
+    if enable_grad_ckpt:
+        model.gradient_checkpointing_enable(
+            gradient_checkpointing_kwargs=gradient_checkpointing_kwargs
+        )
 
     mp_policy = None
     if mixed_precision:
