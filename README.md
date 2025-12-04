@@ -22,6 +22,12 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
 - 25/11/16: Initialize the repo
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
+## Optimization
+
+* Load lively from disk, tokenize on the fly, reduce ram
+* Multiple number of workers 
+
+
 ## Training Pipeline Roadmap
 
 ![#0069e0](https://singlecolorimage.com/get/0069e0/12x12) Classic PyTorch Pipeline &nbsp;&nbsp;
