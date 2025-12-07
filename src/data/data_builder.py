@@ -170,7 +170,8 @@ def get_dataloader(data_path, tokenizer, batch_size, chunk_size=2048, infinite=T
         # persistent_workers=True keeps the workers alive between epochs.
         # This prevents the overhead of respawning processes and re-opening parquet files.
         persistent_workers=(num_workers > 0),
-        prefetch_factor=2 if num_workers > 0 else None
+        prefetch_factor=2 if num_workers > 0 else None,
+        multiprocessing_context='spawn' if num_workers > 0 else None
     )
     loader.pad_token_id = dataset.pad_token_id
     return loader
