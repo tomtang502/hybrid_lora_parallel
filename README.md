@@ -17,14 +17,18 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
 ## Updates
-- 25/12/3: Experiment Submitted to PSC for Profiling DDP, FSDP, FSDP+DTensor Pipelines
-- 25/12/3: Reimplement FSDP + DDP baseline using raw pyTorch, for ease of prfiling and fair comparison
-- 25/11/30: Profiling Pipeline & FSDP+DTensor Profiled, First `push` to sync codebase
-- 25/11/26: Implemented FSDP+DTensor using raw pyTorch
-- 25/11/23: Implemented FSDP using transformers
-- 25/11/20: Implemented DDP using transformers
-- 25/11/17: Proposal Uploaded
-- 25/11/16: Initialize the repo
+- ⏳ *25/12/8: Final report* Tony & Tom
+- ⏳ *25/12/7: Profile pipeline parallelism (PP), under different # of GPUs, and different context length* -> Tony & Tom
+- ⏳ *25/12/6: Implementing pipeline parallelism (PP)* -> Tom
+- ⏳ *25/12/4: Detailed profiling of DDP, FSDP, FSDP+DTensor under different # of GPUs, and different context length* -> Tony
+- ✅ 25/12/3: Experiment submitted to PSC for profiling DDP, FSDP, FSDP+DTensor pipelines
+- ✅ 25/12/3: Reimplement FSDP + DDP baseline using raw pyTorch, for ease of profiling and fair comparison
+- ✅ 25/11/30: Pipeline & FSDP+DTensor profiled, first `push` to sync codebase
+- ✅ 25/11/26: Implemented FSDP+DTensor using raw pyTorch
+- ✅ 25/11/23: Implemented FSDP using transformers
+- ✅ 25/11/20: Implemented DDP using transformers
+- ✅ 25/11/17: Proposal uploaded
+- ✅ 25/11/16: Initialize the repo
 <hr style="border: none; height: 1px; background-color: #17f1baff; margin: 0;">
 
 ## Optimization
