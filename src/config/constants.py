@@ -1,7 +1,7 @@
 import numpy as np, torch
 DATA_DIR_PATH = "/ocean/projects/cis250196p/ltang2/nemotron_data_sample"
 DATA_PATH = "/home/haozhan-tang/ml/db/nemotron_cc_v2/Diverse-QA/part_000000.parquet"
-MODEL_PATH = "jet-aiJet-Nemotron-2B"
+MODEL_PATH = "jet-ai/Jet-Nemotron-2B"
 
 DATASET_BASE_CHUNK_SIZE = 1024
 
