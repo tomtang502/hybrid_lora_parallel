@@ -25,17 +25,29 @@ conda activate "$CONDA_ENV" || { echo "conda activate failed for $CONDA_ENV"; ex
 export WANDB_ENTITY="spanningtree"
 export WANDB_PROJECT="dlora"
 export WANDB_RESUME=allow
+export HF_DATASETS_TRUST_REMOTE_CODE=1
+export HF_ALLOW_CODE_EVAL=1
+export TOKENIZERS_PARALLELISM=false
 
 BASE_MODEL_NAME="Qwen/Qwen2.5-1.5B"
-DATASET_TYPE="math" # code, bbq
-export TOKENIZERS_PARALLELISM=false
+: "${DATASET_PATH:=/jet/home/ltang2/hybrid_lora_parallel/part_000000.parquet}"
 
 if [[ -z $CUDA_VISIBLE_DEVICES ]]; then
     gpu_count=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 else
     gpu_count=$(echo $CUDA_VISIBLE_DEVICES | tr ',' '\n' | wc -l)
 fi
+
 echo "Available GPU count: $gpu_count"
+
+# Local defaults (override via env vars before invoking)
+BATCH_SIZE=${BATCH_SIZE:-2}
+NUM_STEPS=${NUM_STEPS:-100}
+CHUNK_SIZE=${CHUNK_SIZE:-4096}
+GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-16}
+PAR_STRETAGY=${PAR_STRETAGY:-ddp}
+NUM_DEVICES=${NUM_DEVICES:-$gpu_count}
+export WANDB_RUNTYPE=${WANDB_RUNTYPE:-$PAR_STRETAGY}
 
 # Ensure torch.distributed rendezvous doesn't fail due to port 29500 already in use.
 # Allow caller to override MASTER_ADDR/MASTER_PORT. If not set, pick localhost and a free port.
@@ -68,13 +80,14 @@ fi
 export MASTER_ADDR MASTER_PORT
 echo "Using MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT"
 
-# Disable FlashAttention; unset these exports to re-enable later if you build a compatible wheel
-export TRANSFORMERS_DISABLE_FLASH_ATTN=1
-export FLASH_ATTENTION_DISABLE=1
-
 # Run with explicit rendezvous endpoint so torchrun uses the chosen port/address.
 torchrun --nnodes 1 --nproc_per_node=$gpu_count --rdzv_backend=c10d --rdzv_endpoint ${MASTER_ADDR}:${MASTER_PORT} src/script/train.py \
-    --model_name_or_path $BASE_MODEL_NAME \
-    --per_device_batch_size 8 \
-    --gradient_accumulation_steps 4 \
-    --dataset_type $DATASET_TYPE \
+    --model_name_or_path "$BASE_MODEL_NAME" \
+    --per_device_batch_size "$BATCH_SIZE" \
+    --num_devices "$NUM_DEVICES" \
+    --chunk_size "$CHUNK_SIZE" \
+    --num_steps "$NUM_STEPS" \
+    --global_batch_size "$GLOBAL_BATCH_SIZE" \
+    --parallel_stretagy "$PAR_STRETAGY" \
+    --dataset_path "$DATASET_PATH" \
+    "$@"

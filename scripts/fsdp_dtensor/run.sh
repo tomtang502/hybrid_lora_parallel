@@ -17,8 +17,7 @@ if command -v srun &> /dev/null; then
 
     export LOGLEVEL=INFO
 
-    #TODO change this
-    export PATH="$HOME/pathtoCONDAENV/bin:$PATH"
+    export PATH="/ocean/projects/cis250196p/ltang2/.conda/envs/dlora/bin:$PATH"
     CODEDIR="$HOME/codedir"
     cd $CODEDIR
 else
@@ -26,6 +25,7 @@ else
     SLURM_NODEID=0
     SLURM_JOB_ID=0
     head_node_ip=localhost
+    : "${CODEDIR:=$(pwd)}"
 fi
 
 
