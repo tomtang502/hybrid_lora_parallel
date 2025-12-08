@@ -1,5 +1,5 @@
 import numpy as np, torch
-DATA_DIR_PATH = "/ocean/projects/cis250196p/ltang2/nemotron_data_sample"
+DATA_DIR_PATH = "/home/haozhan-tang/ml/db/nemotron_cc_v2"
 DATA_PATH = "/home/haozhan-tang/ml/db/nemotron_cc_v2/Diverse-QA/part_000000.parquet"
 MODEL_PATH = "jet-ai/Jet-Nemotron-2B"
 
