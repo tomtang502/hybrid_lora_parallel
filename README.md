@@ -65,7 +65,7 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
     <td>──►</td>
     <td>
       <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
-      &nbsp;Pipeline Parallelism (Uniform Parameters Split)
+      &nbsp;Pipeline Parallelism (Fixed Parameters Split)
     </td>
     <td>─┐</td>
   </tr>
@@ -87,7 +87,7 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
     </td>
     <td>◄──</td>
     <td>
-      <img src="https://singlecolorimage.com/get/ed5103/12x12" width="12" height="12" />
+      <img src="https://singlecolorimage.com/get/999999/12x12" width="12" height="12" />
       &nbsp;Pipeline Parallelism (Dynamic Parameters Split)
     </td>
     <td align="right">─┘</td>
