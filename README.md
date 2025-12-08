@@ -18,9 +18,9 @@ Github URL: https://github.com/tomtang502/hybrid_lora_parallel/
 
 ## Updates
 - ⏳ *25/12/8: Final report* Tony & Tom
-- ⏳ *25/12/7: Profile pipeline parallelism (PP), under different # of GPUs, and different context length* -> Tony & Tom
-- ⏳ *25/12/6: Implementing pipeline parallelism (PP)* -> Tom
-- ⏳ *25/12/4: Detailed profiling of DDP, FSDP, FSDP+DTensor under different # of GPUs, and different context length* -> Tony
+- ✅ 25/12/7: Profile pipeline parallelism (PP), under different settings
+- ✅ 25/12/6: Implementing pipeline parallelism (PP)
+- ✅ 25/12/4: Detailed profiling of DDP, FSDP, FSDP+DTensor under different # of GPUs, and different context length
 - ✅ 25/12/3: Experiment submitted to PSC for profiling DDP, FSDP, FSDP+DTensor pipelines
 - ✅ 25/12/3: Reimplement FSDP + DDP baseline using raw pyTorch, for ease of profiling and fair comparison
 - ✅ 25/11/30: Pipeline & FSDP+DTensor profiled, first `push` to sync codebase
