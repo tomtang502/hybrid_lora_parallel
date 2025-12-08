@@ -1,4 +1,4 @@
-# On the Optimization of Parallel Training of Large Model with Hybrid Attention and Sparse Activated Parameters
+# On the Optimization of Distributed Training of Large Model with Hybrid Attention and Sparse Activated Parameters
 
 ---
 
