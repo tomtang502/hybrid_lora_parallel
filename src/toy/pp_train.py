@@ -15,6 +15,12 @@ WARM_UP_STEPS = 10
 RES_PATH = "logs/pp_training_report.txt"
 DATA_LOADER_LATENCY = 0.05
 
+# experimental hyper parameters
+BATCH_SIZE = 8
+BATCH_ONCE = 4
+SEQ_LEN = 4608
+SPLIT_LAYER = 16
+
 @dataclass
 class ModelArgs:
     dim: int = 512
@@ -73,17 +79,14 @@ def init_distributed():
 
 def manual_model_split(model) -> PipelineStage:
     if stage_index == 0:
-        for i in range(12, 24): del model.layers[str(i)]
+        for i in range(SPLIT_LAYER, 24): del model.layers[str(i)]
         model.norm = None; model.output = None
     elif stage_index == 1:
-        for i in range(12): del model.layers[str(i)]
+        for i in range(SPLIT_LAYER): del model.layers[str(i)]
         model.tok_embeddings = None
     return PipelineStage(model, stage_index, num_stages, device)
 
 if __name__ == "__main__":
-    BATCH_SIZE = 8
-    BATCH_ONCE = 1
-    SEQ_LEN = 4096
     init_distributed()
     num_microbatches = BATCH_SIZE//BATCH_ONCE
     model_args = ModelArgs()
@@ -101,7 +104,7 @@ if __name__ == "__main__":
     
     
     
-    RES_PATH = f"logs/pp_{SEQ_LEN}_report.txt"
+    RES_PATH = f"logs/pp_ablation/pp_split{SPLIT_LAYER}_sl{SEQ_LEN}_mbs{BATCH_ONCE}_report.txt"
     
     def tokenwise_loss_fn(outputs, targets):
         loss_fn = nn.CrossEntropyLoss()

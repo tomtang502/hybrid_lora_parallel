@@ -15,7 +15,10 @@ FREEZE_LAYERS = {0, 1, 2, 3, 4, 5, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 NUM_STEPS = 100
 WARM_UP_STEPS = 10
 DATA_LOADER_LATENCY = 0.05
-AC_INTERVAL = 1
+AC_INTERVAL = 0
+
+BATCH_SIZE = 4
+SEQ_LEN = 4096
 
 @dataclass
 class ModelArgs:
@@ -98,10 +101,8 @@ if __name__ == "__main__":
  
     fully_shard(model)
     
-    BATCH_SIZE = 8
-    SEQ_LEN = 4096
     
-    RES_PATH = f"logs/fsdp_ac{AC_INTERVAL}_{SEQ_LEN}_report.txt"
+    RES_PATH = f"logs/toy_fsdp_dtensor/fsdp_ac{AC_INTERVAL}_sl{SEQ_LEN}_mbs{BATCH_SIZE}_report.txt"
 
     def tokenwise_loss_fn(outputs, targets):
         loss_fn = nn.CrossEntropyLoss()
