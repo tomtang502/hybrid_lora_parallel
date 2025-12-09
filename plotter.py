@@ -126,12 +126,8 @@ def plot_metric_vs_n(df, metric_name, chunk_size=4096):
                     capsize=5, capthick=2, elinewidth=2, alpha=0.9)
 
     ylabel = 'Throughput (tok/s)' if metric_name == 'throughput' else 'Latency (s)'
-    title = f'{metric_name.capitalize()} vs Number of GPUs (Chunk Size = {chunk_size})'
-    if metric_name == 'throughput':
-        title = f'Throughput per Device vs Number of GPUs (Chunk Size = {chunk_size})'
     plt.xlabel('Number of GPUs (n)', fontsize=12, fontweight='bold')
     plt.ylabel(ylabel, fontsize=12, fontweight='bold')
-    plt.title(title, fontsize=14, fontweight='bold')
     plt.xticks([1, 2, 4])
     plt.legend(fontsize=11)
     plt.grid(True, alpha=0.3)
@@ -181,14 +177,9 @@ def plot_metric_vs_chunk(df, metric_name, n):
                     capsize=10, capthick=4, elinewidth=4, alpha=0.9)
 
     ylabel = 'Throughput (tok/s)' if metric_name == 'throughput' else 'Latency (s)'
-    title = f'{metric_name.capitalize()} vs Chunk Size (n = {n} GPU{"s" if n > 1 else ""})'
-    if metric_name == 'throughput':
-        title = f'Throughput per Device vs Chunk Size (n = {n} GPU{"s" if n > 1 else ""})'
     plt.xlabel('Chunk Size', fontsize=24, fontweight='bold')
     plt.ylabel(ylabel, fontsize=24, fontweight='bold')
-    plt.title(title, fontsize=28, fontweight='bold')
-    plt.xscale('log', base=2)
-    plt.xticks(chunk_sizes, [str(c) for c in chunk_sizes], fontsize=20)
+    plt.xticks(chunk_sizes, [str(c) for c in chunk_sizes], fontsize=13)
     plt.yticks(fontsize=20)
     plt.legend(fontsize=22)
     plt.grid(True, alpha=0.3)
@@ -239,8 +230,6 @@ def plot_vram_vs_chunk(df_vram):
 
     plt.xlabel('Chunk Size', fontsize=12, fontweight='bold')
     plt.ylabel('Peak VRAM Usage (MB)', fontsize=12, fontweight='bold')
-    plt.title('Peak VRAM Usage vs Chunk Size', fontsize=14, fontweight='bold')
-    plt.xscale('log', base=2)
     plt.xticks(chunk_sizes, [str(c) for c in chunk_sizes])
     plt.legend(fontsize=9, ncol=2, loc='best')
     plt.grid(True, alpha=0.3)

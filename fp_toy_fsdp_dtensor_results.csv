@@ -1,0 +1,38 @@
+THROUGHPUT (tok/s) - Average across ranks
+Chunk_Size,mbs=4
+1024,18940.56 ± 51.67
+2048,24360.09 ± 95.21
+3172,25654.82 ± 155.03
+4096,26786.63 ± 120.20
+
+
+LATENCY (s) - Average across ranks
+Chunk_Size,mbs=4
+1024,0.2162 ± 0.0006
+2048,0.3363 ± 0.0013
+3172,0.4946 ± 0.0030
+4096,0.6117 ± 0.0028
+
+
+PEAK VRAM (MB) - Maximum across ranks
+Chunk_Size,mbs=4
+1024,6081.73
+2048,11413.21
+3172,17286.18
+4096,22059.52
+
+
+VRAM DIFFERENCE (MB) - Absolute difference between ranks
+Chunk_Size,mbs=4
+1024,0.00
+2048,0.00
+3172,0.43
+4096,0.00
+
+
+VRAM SUM (MB) - Sum across ranks
+Chunk_Size,mbs=4
+1024,12163.46
+2048,22826.42
+3172,34571.93
+4096,44119.04
